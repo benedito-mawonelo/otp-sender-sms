@@ -1,7 +1,4 @@
-const functions = require("firebase-functions")
-const twilio = require("twilio")
-const cors = require("cors")({ origin: true })
-
+import twilio from 'twilio'
 
 const ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID
 const AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN
