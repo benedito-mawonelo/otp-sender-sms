@@ -6,26 +6,27 @@ const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER
 
 const client = twilio(ACCOUNT_SID, AUTH_TOKEN)
 
-exports.sendOtpSms = functions.https.onRequest((req, res) => {
-  cors(req, res, async () => {
-    const numero = req.body.numero
-    const codigo = req.body.codigo
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Método não permitido. Use POST.' })
+  }
 
-    if (!numero || !codigo) {
-      return res.status(400).send({ error: "Número ou código ausente" })
-    }
+  const { numero, codigo } = req.body
 
-    try {
-      const message = await client.messages.create({
-        body: `Seu código de verificação é: ${codigo}`,
-        from: TWILIO_PHONE_NUMBER,
-        to: `+258${numero}`
-      })
+  if (!numero || !codigo) {
+    return res.status(400).json({ error: 'Número ou código ausente.' })
+  }
 
-      return res.status(200).send({ success: true, sid: message.sid })
-    } catch (e) {
-      console.error(e)
-      return res.status(500).send({ error: "Erro ao enviar SMS", details: e.message })
-    }
-  })
-})
+  try {
+    const message = await client.messages.create({
+      body: `Seu código de verificação é: ${codigo}`,
+      from: TWILIO_PHONE_NUMBER,
+      to: `+258${numero}`
+    })
+
+    return res.status(200).json({ success: true, sid: message.sid })
+  } catch (e) {
+    console.error(e)
+    return res.status(500).json({ error: 'Erro ao enviar SMS', details: e.message })
+  }
+}
